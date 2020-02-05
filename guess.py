@@ -8,10 +8,8 @@ from gtts import gTTS
 from time import ctime
 
 rec = sr.Recognizer()
-random_number = 100
 MAX_NUMBER = 100
 MIN_NUMBER = 1
-eves_guess = 0
 
 # Using the microphone, Eve listens to the user and returns a String Representations of what the user said. If eve can understand it will return 'Sorry, I did not get that'. If the speech service fails it will say 'Sorry, my speech service is down'
 def listen(ask = False):
@@ -36,8 +34,8 @@ def speak(audio_string):
     print(audio_string)
     os.remove(audio_file)
 
-# Eve introduces herslef and invites the user to play the guessing game. If the user answers yes, eve will then ask if the user wants to be the guesser or not, Otherwise Eve will say goodbye. 
-def game_intro(message = "Hi my name is Eve. Do you want to play the number guessing game?"):
+# If a string parameter is not given, Eve introduces herself and invites the user to play the guessing game. If the user answers yes, eve will then ask if the user wants to be the guesser or not, Otherwise Eve will say goodbye.
+def play_game(message = "Hi my name is Eve. Do you want to play the number guessing game?"):
     speak(message)
     game_response = listen()
     if 'yes' in game_response:
@@ -51,7 +49,7 @@ def game_intro(message = "Hi my name is Eve. Do you want to play the number gues
         speak("Okay, maybe next time.")
         exit()
 
-# Eve picks a random number and listens to the users guesses until the user guesses the right number. Eve also keeps track of the number of guesses. Depending on the users guess, Eve will let the user know if their guess is too high or too low.
+# Eve picks a random number and listens to the users guesses until the user guesses the right number. Eve also keeps track of the number of guesses. Depending on the users guess, Eve will let the user know if their guess is too high or too low. When the number is guessed correctly, Eve will invite the user to play again.
 def user_guesses():
     users_guess = 0
     random_number = random.randint(1, MAX_NUMBER)
@@ -63,32 +61,36 @@ def user_guesses():
             if s.isdigit():
                 users_guess = int(s)
                 break
-        if users_guess > random_number:
+        if (users_guess == 0):
+            speak("What is your guess?")
+        elif users_guess > random_number:
             speak("The number I am thinking is less than " + str(users_guess))
         elif users_guess < random_number:
             speak("The number I am thinking is greater than " + str(users_guess))
     speak("Great Job! you guessed it!")
-    game_intro("Do you want to play again?")
+    play_game("Do you want to play again?")
 
-# The user picks a random number and listens to Eve's guesses until the Eve guesses the right number. Eve also keeps track of the number of guesses. Depending on the Eve's guess, the user will let Eve know if their guess is too high or too low.
+# The user picks a random number and listens to Eve's guesses until the Eve guesses the right number. Eve also keeps track of the number of guesses. Depending on the Eve's guess, the user will let Eve know if their guess is too high or too low. When the number is guessed correctly, Eve will invite the user to play again.
 def eve_guesses():
     max_num = 100
     min_num = 1
     found = False
-    speak("Okay, think of a number between 1 and 100! If my guess is wrong please tell me if the number is greater than or less than my guess")
+    speak("Okay, think of a number between 1 and 100!") 
+    time.sleep(1)
+    speak("If my guess is wrong please tell me if the number you're thinking of is greater than or less than my guess")
     while not found:
-        eve_guess = random.randint(min_num, max_num)
-        speak("Is it " + str(eve_guess))
+        eves_guess = random.randint(min_num, max_num)
+        speak("Is it " + str(eves_guess))
         users_response = listen()
         if 'less than' in users_response:
-            max_num = eve_guess - 1
+            max_num = eves_guess - 1
         elif 'greater than' in users_response:
-            min_num = eve_guess + 1
+            min_num = eves_guess + 1
         elif 'yes' in users_response:
             break
     speak("Hooray! I got it")
-    game_intro("Do you want to play again?")
+    play_game("Do you want to play again?")
 
 
-# Play The game
-game_intro()
+# Invite the user to play the number guessing game
+play_game()
